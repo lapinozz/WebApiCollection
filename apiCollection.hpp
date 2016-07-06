@@ -1,3 +1,5 @@
+#pragma once
+
 #include "cpr/include/cpr.h"
 #include "cpr/include/util.h"
 
@@ -264,5 +266,27 @@ namespace ApiCollection
         cpr::Response r = cpr::Post(cpr::Url("http://watchout4snakes.com/wo4snakes/Random/" + typeString), payloads);
 
         return r.text;
+    }
+
+    inline std::string imgurUploadFromUrl(std::string content)
+    {
+        cpr::Session s;
+        s.SetHeader(cpr::Header{{"Authorization", "Client-ID 6a5400948b3b376"}, {"Accept", "application/json"}});
+        s.SetBody(cpr::Body(content));
+        s.SetUrl("https://api.imgur.com/3/image");
+
+        auto r = s.Post();
+
+        r.text = r.text.substr(r.text.find("\"link\":\"") + 8);
+        r.text = r.text.substr(0, r.text.find("\""));
+
+        r.text = replaceAll(r.text, "\\/", "/");
+
+        return r.text;
+    }
+
+    inline std::string shortenUrl(std::string url)
+    {
+        return cpr::Get(cpr::Url("https://is.gd/create.php?format=simple&url=" + cpr::util::urlEncode(url))).text;
     }
 }
